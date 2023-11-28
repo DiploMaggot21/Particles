@@ -1,5 +1,12 @@
 #include "Particle.h"
 
+Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPostion) : m_A(2, numPoints)
+{
+    m_ttl = TTL;
+    m_numPoints = numPoints;
+
+
+}
 
 bool Particle::almostEqual(double a, double b, double eps)
 {

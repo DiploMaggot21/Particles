@@ -1,8 +1,12 @@
-#include "Engine.h"
+#include "Engine.h"  //Re-Adjust file opening if needed
 
 Engine::Engine()
 {
-	sf::RenderWindow create()
+	m_Window.create(sf::VideoMode::getDesktopMode(), "Particles!");
+}
 
-
+void Engine::run()
+{
+	Clock time;
+	Particle;
 }
