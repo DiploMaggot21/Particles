@@ -11,7 +11,7 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosti
 
     m_centerCoordinate = target.mapPixelToCoords(mouseClickPostion, m_cartesianPlane);
 
-    int min = -100;
+    int min = -1000;
     int max = 500;
     //make its velocity random
     m_vx = rand() % (max - min + 1) + min;
@@ -24,8 +24,8 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosti
     m_color2 = sf::Color(std::rand() % 256, std::rand() % 256, std::rand() % 256);
 
 
-    double theta = ((float)rand() / (RAND_MAX)) * (M_PI / 2);
-    double dTheta = (2 * M_PI) / (numPoints - 1);
+    theta = ((float)rand() / (RAND_MAX)) * (M_PI / 2);
+    dTheta = (2 * M_PI) / (numPoints - 1);
     for (int j = 0; j < numPoints; j++)
     {
         int r;
@@ -60,7 +60,7 @@ void Particle::draw(RenderTarget& target, RenderStates states) const
 void Particle::update(float dt)
 {
     float dx, dy;
-    m_ttl = m_ttl - dt;
+    m_ttl -= dt;
     rotate(dt * m_radiansPerSec);
     scale(SCALE);
     dx = m_vx * dt;

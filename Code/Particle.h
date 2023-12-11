@@ -1,6 +1,7 @@
 #pragma once
 #include "Matrices.h"
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 const float M_PI = 3.1415926535897932384626433;
 const float G = 1000;      //Gravity
@@ -12,8 +13,8 @@ using namespace sf;
 class Particle : public Drawable
 {
 public:
-	Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition);
-	virtual void draw(RenderTarget& target, RenderStates states) const override;
+    Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition);
+    virtual void draw(RenderTarget& target, RenderStates states) const override;
     void update(float dt);
     float getTTL() { return m_ttl; }
 
@@ -24,7 +25,7 @@ public:
 private:
     float m_ttl;
     int m_numPoints;
-	Vector2f m_centerCoordinate;
+    Vector2f m_centerCoordinate;
     float m_radiansPerSec;
     float m_vx;
     float m_vy;
@@ -33,7 +34,7 @@ private:
     Color m_color2;
     Matrix m_A;
     double theta;
-    double dtheta;
+    double dTheta;
 
     ///rotate Particle by theta radians counter-clockwise
     ///construct a RotationMatrix R, left mulitply it to m_A
