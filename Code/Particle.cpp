@@ -4,20 +4,96 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosti
 {
     m_ttl = TTL;
     m_numPoints = numPoints;
-
-    float randFract = (float)rand() / (RAND_MAX);
-    m_radiansPerSec = randFract * M_PI;
+    m_radiansPerSec = ((float)rand() / (RAND_MAX)) * M_PI;
 
     m_cartesianPlane.setCenter(0, 0);
     m_cartesianPlane.setSize(target.getSize().x, (-1.0) * target.getSize().y);
 
+    m_centerCoordinate = target.mapPixelToCoords(mouseClickPostion, m_cartesianPlane);
+
+    int a = 100;
+    int b = 500;
+    m_vx = rand() % (b - a + 1) + a;
+    m_vy = rand() % (b - a + 1) + a;
+
+    m_color1 = sf::Color::Cyan;
+    m_color2 = sf::Color::Red;
+
+    double theta = ((float)rand() / (RAND_MAX)) * (M_PI / 2);
+    double dTheta = (2 * M_PI) / (numPoints - 1);
+    for (int j = 0; j < numPoints; j++)
+    {
+        int r;
+        double dx;
+        double dy;
+
+        r = rand() % (60 - 20 + 1) + 20;
+        dx = r * cos(theta);
+        dy = r * sin(theta);
+        m_A(0, j) = m_centerCoordinate.x + dx;
+        m_A(1, j) = m_centerCoordinate.y + dy;
+        theta += dTheta;
+    }
+}
+
+void Particle::draw(RenderTarget& target, RenderStates states) const
+{
+    sf::VertexArray lines(sf::TriangleFan, m_numPoints + 1);
+    sf::Vector2f center(target.mapCoordsToPixel(m_centerCoordinate, m_cartesianPlane));
+    lines[0].position = center;
+    lines[0].color = m_color1;
+    for (int j = 1; j < m_numPoints; j++)
+    {
+        Vector2f tempCoord(m_A(0, j - 1), m_A(1, j - 1));
+        Vector2f tempVertex(target.mapCoordsToPixel(tempCoord, m_cartesianPlane));
+        lines[j].position = tempVertex;
+        lines[j].color = m_color2;
+    }
+    target.draw(lines);
+}
+
+void Particle::update(float dt)
+{
+    float dx, dy;
+    m_ttl = m_ttl - dt;
+    rotate(dt * m_radiansPerSec);
+    scale(SCALE);
+    dx = m_vx * dt;
+    m_vy -= G * dt;
+    dy = m_vy * dt;
+    translate(dx, dy);
+}
+
+void Particle::translate(double xShift, double yShift)
+{
+    TranslationMatrix T(xShift, yShift, m_A.getCols());
+    m_A = T + m_A;
+    m_centerCoordinate.x += xShift;
+    m_centerCoordinate.y += yShift;
+}
+
+void Particle::rotate(double theta)
+{
+    Vector2f temp = m_centerCoordinate;
+    translate(-m_centerCoordinate.x, -m_centerCoordinate.y);
+    RotationMatrix R(theta);
+    m_A = R * m_A;
+    translate(temp.x, temp.y);
+}
+
+void Particle::scale(double c)
+{
+    Vector2f temp = m_centerCoordinate;
+    translate(-m_centerCoordinate.x, -m_centerCoordinate.y);
+    ScalingMatrix S(c);
+    m_A = S * m_A;
+    translate(temp.x, temp.y);
 }
 
 bool Particle::almostEqual(double a, double b, double eps)
 {
     return fabs(a - b) < eps;
 }
-
 
 void Particle::unitTests()
 {
@@ -73,7 +149,7 @@ void Particle::unitTests()
         cout << "Failed." << endl;
     }
 
-    
+
     cout << "Testing Particles..." << endl;
     cout << "Testing Particle mapping to Cartesian origin..." << endl;
     if (m_centerCoordinate.x != 0 || m_centerCoordinate.y != 0)
@@ -115,7 +191,7 @@ void Particle::unitTests()
     bool scalePassed = true;
     for (int j = 0; j < initialCoords.getCols(); j++)
     {
-        if (!almostEqual(m_A(0, j), 0.5 * initialCoords(0,j)) || !almostEqual(m_A(1, j), 0.5 * initialCoords(1, j)))
+        if (!almostEqual(m_A(0, j), 0.5 * initialCoords(0, j)) || !almostEqual(m_A(1, j), 0.5 * initialCoords(1, j)))
         {
             cout << "Failed mapping: ";
             cout << "(" << initialCoords(0, j) << ", " << initialCoords(1, j) << ") ==> (" << m_A(0, j) << ", " << m_A(1, j) << ")" << endl;
